@@ -53,6 +53,8 @@ data "aws_acm_certificate" "elb_internal_cert" {
   statuses = ["ISSUED"]
 }
 
+data "aws_caller_identity" "current" {}
+
 resource "aws_elb" "puppetmaster_bootstrap_elb" {
   count           = "${var.enable_bootstrap}"
   name            = "${var.stackname}-puppetmaster-bootstrap"
@@ -180,7 +182,8 @@ module "puppetmaster" {
   instance_additional_user_data = "${join("\n", null_resource.user_data.*.triggers.snippet)}"
   instance_elb_ids              = ["${aws_elb.puppetmaster_bootstrap_elb.*.id}", "${aws_elb.puppetmaster_internal_elb.id}"]
   instance_elb_ids_length       = "${var.enable_bootstrap > 0 ? 2 : 1}"
-  instance_ami_filter_name      = "${var.instance_ami_filter_name}"
+  instance_ami_filter_name      = "govuk_puppetmaster_bootstrap"
+  instance_ami_owner            = "696911096973"
   asg_notification_topic_arn    = "${data.terraform_remote_state.infra_monitoring.sns_topic_autoscaling_group_events_arn}"
   root_block_device_volume_size = "50"
 }
@@ -194,6 +197,31 @@ resource "aws_iam_policy" "puppetmaster_iam_policy" {
 resource "aws_iam_role_policy_attachment" "puppetmaster_iam_role_policy_attachment" {
   role       = "${module.puppetmaster.instance_iam_role_name}"
   policy_arn = "${aws_iam_policy.puppetmaster_iam_policy.arn}"
+}
+
+data "aws_iam_policy_document" "ssm_getparameter_policy_doc" {
+  statement {
+    sid = "1"
+
+    actions = [
+      "ssm:GetParameter",
+      "ssm:DescribeParameters",
+    ]
+
+    resources = [
+      "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter/*",
+    ]
+  }
+}
+
+resource "aws_iam_policy" "puppetmaster_ssm_getparameter_policy" {
+  name   = "${var.stackname}-puppetmaster-ssm-getparameter"
+  policy = "${data.aws_iam_policy_document.ssm_getparameter_policy_doc.json}"
+}
+
+resource "aws_iam_role_policy_attachment" "puppetmaster_iam_role_policy_attachment_2" {
+  role       = "${module.puppetmaster.instance_iam_role_name}"
+  policy_arn = "${aws_iam_policy.puppetmaster_ssm_getparameter_policy.arn}"
 }
 
 module "alarms-elb-puppetmaster-internal" {
