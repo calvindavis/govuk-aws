@@ -75,7 +75,7 @@ cd ${GOVUK_PUPPET_REPO}
 ${GIT_BINARY} checkout puppetmaster_ssm
 
 # Clone secrets repo
-#${GIT_BINARY} clone ${GOVUK_GIT_URL}/${GOVUK_SECRETS_REPO}
+${GIT_BINARY} clone ${GOVUK_GIT_URL}/${GOVUK_SECRETS_REPO}
 
 cp -r ${GOVUK_WORKDIR}/${GOVUK_SECRETS_REPO}/puppet_aws/hieradata/* ${GOVUK_WORKDIR}/${GOVUK_PUPPET_REPO}/hieradata_aws/
 
