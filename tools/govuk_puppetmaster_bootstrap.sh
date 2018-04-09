@@ -26,7 +26,7 @@ GOVUK_LOGDIR='/var/log/govuk'
 GOVUK_GIT_URL='git@github.com:alphagov'
 
 GOVUK_SECRETS_REPO='govuk-secrets'
-GOVUK_PUPPET_REPO='govuk-puppet'
+GOVUK_PUPPET_REPO='https://github.com/alphagov/govuk-puppet.git'
 
 GPG_KEYSTORE='/root/.gnupg'
 GPG_KEYNAME='gpgkey'
@@ -59,7 +59,7 @@ echo "-----END PGP PRIVATE KEY BLOCK-----";
 } >>${GPG_KEYSTORE}/${GPG_KEYNAME}
 
 # Clone Puppet repo
-${GIT_BINARY} clone ${GOVUK_GIT_URL}/${GOVUK_PUPPET_REPO}
+${GIT_BINARY} clone {GOVUK_PUPPET_REPO}
 
 # Clone secrets repo
 ${GIT_BINARY} clone ${GOVUK_GIT_URL}/${GOVUK_SECRETS_REPO}
