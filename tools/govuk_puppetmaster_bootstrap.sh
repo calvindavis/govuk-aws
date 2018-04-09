@@ -50,6 +50,9 @@ SSH_1_OF_1=$(${AWS_BINARY} --region=${AWS_REGION} ssm get-parameter --name "govu
 } >>${SSH_KEYSTORE}/id_rsa
 chmod 600 ${SSH_KEYSTORE}/id_rsa
 
+# Prevent auth issues when checking out govuk-secrets
+ssh-keyscan -t rsa github.com > /root/.ssh/known_hosts
+
 # Retrieve private GPG key to allow decryption of govuk-secrets
 GPG_1_OF_2=$(${AWS_BINARY} --region=${AWS_REGION} ssm get-parameter --name "govuk_staging_secrets_1_of_2_gpg" --with-decryption \
 | jq .Parameter.Value | sed -e "s/^\"//;s/\"$//")
