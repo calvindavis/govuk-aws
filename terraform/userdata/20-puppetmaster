@@ -31,7 +31,10 @@ cd /var/govuk
 # Get git and checkout govuk-aws
 apt-get -y install git
 git clone https://github.com/alphagov/govuk-aws.git
+cd govuk-aws
 git checkout puppetmaster_ssm
+
+cd /var/govuk
 
 # Run the bootstrap script
 /var/govuk/govuk-aws/tools/govuk_puppetmaster_bootstrap.sh

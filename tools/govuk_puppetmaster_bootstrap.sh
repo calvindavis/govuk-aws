@@ -5,7 +5,7 @@
 # which is present in /usr/local/bin/ within the AMI and is called by
 # rc.local on first boot.
 set -x
-set -u
+set -e
 
 GIT_BINARY='/usr/bin/git'
 BUNDLE_BINARY='/usr/bin/bundle'
@@ -13,6 +13,9 @@ RAKE_BINARY='/usr/local/bin/rake'
 GEM_BINARY='/usr/bin/gem'
 PUPPET_BINARY='/usr/local/bin/puppet'
 GPG_BINARY='/usr/bin/gpg'
+AWS_BINARY='/usr/local/bin/aws'
+
+AWS_REGION='eu-west-1'
 
 GOVUK_ENVIRONMENT='staging'
 GOVUK_STACKNAME='blue'
@@ -27,6 +30,8 @@ GOVUK_PUPPET_REPO='govuk-puppet'
 
 GPG_KEYSTORE='/root/.gnupg'
 GPG_KEYNAME='gpgkey'
+
+SSH_KEYSTORE='/root/.ssh'
 
 apt-get -y install bundler
 apt-get -y install python3-pip
