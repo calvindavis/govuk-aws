@@ -5,7 +5,6 @@
 # which is present in /usr/local/bin/ within the AMI and is called by
 # rc.local on first boot.
 set -x
-set -e
 
 GIT_BINARY='/usr/bin/git'
 BUNDLE_BINARY='/usr/bin/bundle'
@@ -26,7 +25,7 @@ GOVUK_LOGDIR='/var/log/govuk'
 GOVUK_GIT_URL='git@github.com:alphagov'
 
 GOVUK_SECRETS_REPO='govuk-secrets'
-GOVUK_PUPPET_REPO='https://github.com/alphagov/govuk-puppet.git'
+GOVUK_PUPPET_REPO='govuk-puppet'
 
 GPG_KEYSTORE='/root/.gnupg'
 GPG_KEYNAME='gpgkey'
@@ -36,6 +35,9 @@ SSH_KEYSTORE='/root/.ssh'
 apt-get -y install bundler
 apt-get -y install python3-pip
 pip3 install awscli
+
+mkdir -p ${GPG_KEYSTORE}
+mkdir -p ${GOVUK_LOGDIR}
 
 cd ${GOVUK_WORKDIR}
 
@@ -68,12 +70,14 @@ echo "-----END PGP PRIVATE KEY BLOCK-----";
 } >>${GPG_KEYSTORE}/${GPG_KEYNAME}
 
 # Clone Puppet repo
-${GIT_BINARY} clone ${GOVUK_PUPPET_REPO}
+${GIT_BINARY} clone https://github.com/alphagov/govuk-puppet.git
+cd ${GOVUK_PUPPET_REPO}
+${GIT_BINARY} checkout puppetmaster_ssm
 
 # Clone secrets repo
-${GIT_BINARY} clone ${GOVUK_GIT_URL}/${GOVUK_SECRETS_REPO}
+#${GIT_BINARY} clone ${GOVUK_GIT_URL}/${GOVUK_SECRETS_REPO}
 
-cp ${GOVUK_WORKDIR}/${GOVUK_SECRETS_REPO}/puppet_aws/hieradata/* ${GOVUK_WORKDIR}/${GOVUK_PUPPET_REPO}/hieradata_aws/
+cp -r ${GOVUK_WORKDIR}/${GOVUK_SECRETS_REPO}/puppet_aws/hieradata/* ${GOVUK_WORKDIR}/${GOVUK_PUPPET_REPO}/hieradata_aws/
 
 RELEASENAME=$(date +%Y%m%d%H%M%S)
 
@@ -84,7 +88,7 @@ then
 
   if [[ -d "${GOVUK_WORKDIR}/${GOVUK_PUPPET_REPO}/hieradata_aws/${GOVUK_STACKNAME}" ]]
   then
-    cp ${GOVUK_WORKDIR}/${GOVUK_PUPPET_REPO}/hieradata_aws/${GOVUK_STACKNAME}/${GOVUK_ENVIRONMENT}_credentials.yaml ${GOVUK_WORKDIR}/${GOVUK_PUPPET_REPO}/hieradata_aws/${GOVUK_STACKNAME}/production_credentials.yaml
+    cp -r ${GOVUK_WORKDIR}/${GOVUK_PUPPET_REPO}/hieradata_aws/${GOVUK_STACKNAME}/${GOVUK_ENVIRONMENT}_credentials.yaml ${GOVUK_WORKDIR}/${GOVUK_PUPPET_REPO}/hieradata_aws/${GOVUK_STACKNAME}/production_credentials.yaml
   fi
 fi
 
