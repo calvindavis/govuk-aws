@@ -59,7 +59,7 @@ echo "-----END PGP PRIVATE KEY BLOCK-----";
 } >>${GPG_KEYSTORE}/${GPG_KEYNAME}
 
 # Clone Puppet repo
-${GIT_BINARY} clone {GOVUK_PUPPET_REPO}
+${GIT_BINARY} clone ${GOVUK_PUPPET_REPO}
 
 # Clone secrets repo
 ${GIT_BINARY} clone ${GOVUK_GIT_URL}/${GOVUK_SECRETS_REPO}
