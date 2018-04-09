@@ -40,8 +40,14 @@ pip3 install awscli
 cd ${GOVUK_WORKDIR}
 
 # Retrieve private SSH key to allow cloning of govuk-secrets
-${AWS_BINARY} --region=${AWS_REGION} ssm get-parameter --name "govuk_secrets_clone_ssh" --with-decryption \
-| jq .Parameter.Value | sed -e "s/^\"//;s/\"$//" > ${SSH_KEYSTORE}/id_rsa
+SSH_1_OF_1=$(${AWS_BINARY} --region=${AWS_REGION} ssm get-parameter --name "govuk_secrets_clone_ssh" --with-decryption \
+    | jq .Parameter.Value | sed -e "s/^\"//;s/\"$//")
+
+{
+    echo "-----BEGIN RSA PRIVATE KEY-----";
+    echo ${SSH_1_OF_1}|sed -e s/' '/'\n'/g;
+    echo "-----END RSA PRIVATE KEY-----";
+} >>${SSH_KEYSTORE}/id_rsa
 chmod 600 ${SSH_KEYSTORE}/id_rsa
 
 # Retrieve private GPG key to allow decryption of govuk-secrets
